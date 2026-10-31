@@ -346,7 +346,7 @@ content = content.replace("./htdocs/", "$(TOPDIR)/package/network/services/ua3f/
 # kmod-nft-queue (NFQUEUE/desync) are installed. Do not pull in the legacy
 # iptables extension stack: it reintroduces kmod-ipt-raw and is not needed here.
 old_dep = "\tDEPENDS:=$(GO_ARCH_DEPENDS) +luci-compat +ipset +iptables +iptables-mod-tproxy +iptables-mod-extra +iptables-mod-ipopt +iptables-mod-nfqueue +iptables-mod-conntrack-extra +kmod-nf-conntrack-netlink"
-new_dep = "\tDEPENDS:=$(GO_ARCH_DEPENDS) +luci-compat +nftables-json +kmod-nft-tproxy +kmod-nft-queue +kmod-sched-bpf +libubox-lua +kmod-nf-conntrack-netlink"
+# Qualcomm IPQ807x explicitly excludes kmod-sched-bpf in its target package set.\n# UA3F uses nftables TPROXY/NFQUEUE here; keep TC/BPF offload disabled.\nnew_dep = "\tDEPENDS:=$(GO_ARCH_DEPENDS) +luci-compat +nftables-json +kmod-nft-tproxy +kmod-nft-queue +libubox-lua +kmod-nf-conntrack-netlink"
 if content.count(old_dep) != 1:
     raise SystemExit("ERROR: expected UA3F legacy iptables dependency line was not found exactly once.")
 content = content.replace(old_dep, new_dep)
@@ -379,7 +379,7 @@ grep -qx "$TARGET_PROFILE_LINE" .config || {
   exit 1
 }
 for package in \
-  ua3f nftables-json kmod-nft-queue kmod-nft-tproxy kmod-sched-bpf libubox-lua \
+  ua3f nftables-json kmod-nft-queue kmod-nft-tproxy libubox-lua \
   kmod-nft-core kmod-nfnetlink-queue kmod-nf-tproxy kmod-nf-conntrack \
   kmod-nf-conntrack-netlink kmod-sched-core dnsmasq-full \
   luci-app-passwall ipt2socks mentohust luci-app-mentohust libpcap \
