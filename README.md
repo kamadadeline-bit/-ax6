@@ -28,3 +28,5 @@ LAN `192.168.5.1/24`，主机名 `Campus-SY`，DHCP 池 `192.168.5.100–192.168
 ## 安全说明
 
 factory.ubi 的尺寸与 UBI 头检查是保守结构校验，不等同于实机刷写验证。不要覆盖 U-Boot/MIBIB 分区；先保留已知可启动镜像和原厂备份。
+
+构建入口：GitHub Actions 的 Build Campus SY - Redmi AX6 工作流。
