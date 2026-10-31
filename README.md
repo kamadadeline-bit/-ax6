@@ -19,6 +19,10 @@ GitHub Actions: `.github/workflows/build-ax6.yml`。单 job 构建并启用 conc
 
 MentoHUST、Dogcom、ESurfingClient C v2.2.1-r7、PPP/PPPoE 环境、wpad-openssl、UA3F nftables TPROXY、PassWall nftables、UU 游戏加速器、SQM、relayd 无线中继、STA 自动恢复、Argon 中文主题。
 
+### UA3F BPF-TC 加速兼容性策略
+
+BPF-TC/eBPF 流量卸载属于 UA3F 的可选性能加速能力，不是 UA3F 基础 TPROXY/NFQUEUE 功能的硬依赖。每个设备型号、目标内核都必须单独尝试启用 `kmod-sched-bpf` 并检查 Kconfig 是否保留；若可选，再做模块构建、启动加载、TC 挂载/卸载和实际流量测试。只有全部通过才在该型号固件中默认启用；若目标不支持或运行时报 `no eligible interfaces for TC` 等错误，则保留 UA3F 常规转发模式并明确记录原因，不能因此导致 UA3F 或网络服务启动失败。
+
 不包含 OpenClash、SSR-Plus、Mihomo、MiniEAP、Turbo ACC 和无关家用插件。
 
 ## 默认设置
