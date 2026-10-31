@@ -373,6 +373,15 @@ cp -a "$ARGON_SRC_DIR" package/luci-theme-argon
 cat "$ROOT_DIR/configs/packages.common.config" "$DEVICE_CONFIG" > .config
 make defconfig
 
+# BPF-TC is an optional UA3F acceleration path, not a hard dependency.
+# Probe each device/kernel independently: if Kconfig keeps the package, build it;
+# if Kconfig drops it, continue with UA3F's regular dataplane and report the fallback.
+if grep -qx 'CONFIG_PACKAGE_kmod-sched-bpf=y' .config; then
+  echo 'BPF-TC probe: kmod-sched-bpf is selectable for this device; include it in the image.'
+else
+  echo 'BPF-TC probe: kmod-sched-bpf is unavailable/incompatible for this device kernel; continue without BPF-TC acceleration.'
+fi
+
 # Assert target profile survived Kconfig.
 grep -qx "$TARGET_PROFILE_LINE" .config || {
   echo "ERROR: target profile $DEVICE_PROFILE was dropped by Kconfig." >&2
