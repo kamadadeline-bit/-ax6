@@ -53,6 +53,32 @@ case "$DEVICE_PROFILE" in
     ;;
 esac
 
+# The qualcommax platform explicitly blacklists kmod-sched-bpf in its
+# DEFAULT_PACKAGES list. Remove only that blacklist for this per-device probe;
+# the package remains selected by packages.common.config and is still subject
+# to Kconfig dependency resolution and a real module build.
+if [[ "$DEVICE_PROFILE" == "redmi_ax6" ]]; then
+  python3 - target/linux/qualcommax/Makefile <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+token = "-kmod-sched-bpf"
+count = text.count(token)
+if count != 1:
+    raise SystemExit(
+        f"ERROR: expected one qualcommax kmod-sched-bpf blacklist, found {count}; "
+        "refusing to patch an unexpected platform Makefile."
+    )
+text = text.replace(token, "kmod-sched-bpf", 1)
+path.write_text(text, encoding="utf-8")
+if "-kmod-sched-bpf" in text:
+    raise SystemExit("ERROR: qualcommax kmod-sched-bpf blacklist remains.")
+print("Removed qualcommax's explicit kmod-sched-bpf blacklist for the AX6 BPF-TC compatibility probe.")
+PY
+fi
+
 # Linux 6.12.114's refreshed patch stack uses netns_immutable, while the
 # mac80211 backport compatibility patch still selects netns_local until 6.15.
 # Raise the compatibility cutoff for 6.12.114+; leave older 6.12 kernels intact.
@@ -434,7 +460,7 @@ for forbidden in \
   luci-app-nlbwmon luci-app-rclone luci-app-upnp luci-app-vlmcsd \
   luci-app-vsftpd luci-app-wol luci-app-accesscontrol \
   ddns-scripts-aliyun ddns-scripts_dnspod ddns-scripts_aliyun \
-  ddns-scripts coremark block-mount kmod-nf-nathelper kmod-nf-nathelper-extra \
+  ddns-scripts coremark kmod-nf-nathelper kmod-nf-nathelper-extra \
   kmod-ipt-raw kmod-ipt-conntrack-extra iptables-mod-conntrack-extra \
   iptables-mod-tproxy iptables-mod-extra iptables-mod-ipopt iptables-mod-nfqueue \
   default-settings; do
