@@ -1,8 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "\${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_SCRIPT="$ROOT_DIR/scripts/build.sh"
+
+test -f "$BUILD_SCRIPT" || {
+  echo "ERROR: build script not found: $BUILD_SCRIPT" >&2
+  exit 1
+}
 
 python3 - "$BUILD_SCRIPT" <<'PY'
 from pathlib import Path
@@ -22,8 +27,8 @@ for translation in \\
   luci-i18n-passwall-zh-cn \\
   luci-i18n-sqm-zh-cn \\
   luci-i18n-argon-config-zh-cn; do
-  if ! grep -qx "CONFIG_PACKAGE_\${translation}=y" .config; then
-    echo "ERROR: required Simplified-Chinese LuCI translation \${translation} is missing or was dropped by Kconfig." >&2
+  if ! grep -qx "CONFIG_PACKAGE_${translation}=y" .config; then
+    echo "ERROR: required Simplified-Chinese LuCI translation ${translation} is missing or was dropped by Kconfig." >&2
     exit 1
   fi
 done
@@ -34,6 +39,7 @@ if text.count(marker) != 1:
 if "required Simplified-Chinese LuCI translation" in text:
     raise SystemExit("ERROR: Chinese translation guard is already present; refusing duplicate injection.")
 path.write_text(text.replace(marker, block, 1), encoding="utf-8")
+print(f"Injected Simplified-Chinese LuCI Kconfig guard into {path}.")
 PY
 
 exec bash "$BUILD_SCRIPT"
