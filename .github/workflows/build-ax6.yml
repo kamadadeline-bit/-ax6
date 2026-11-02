@@ -83,7 +83,7 @@ jobs:
           df -h
 
       - name: Build Campus SY firmware (single build job)
-        run: bash ./scripts/build.sh
+        run: bash ./scripts/build-ax6-zh.sh
 
       - name: Upload AX6 firmware and verification metadata
         if: success()
